@@ -49,9 +49,9 @@ Todas as tabelas do banco de dados devem conter campos de “**createdAt“** e 
 
 ## 2\. Cadastro de Tutor
 
-**POST /usuário**
+**POST /usuario**
 
-**Descrição**: Cadastra um novo tutor com seus dados e questionário preenchido. O questionário obrigatório deve ser enviado junto ao cadastro.
+**Descrição**: Cadastra um novo usuario com seus dados. O questionário pode ou não ser enviado junto ao cadastro do usuário.
 
 **201 Created** – Tutor cadastrado com sucesso:
 
@@ -88,9 +88,9 @@ Todas as tabelas do banco de dados devem conter campos de “**createdAt“** e 
 {"erro": "Erro interno ao cadastrar o tutor."}
 ```
 
-**POST /questionário**
+**POST /questionario**
 
-**Descrição**: Cadastra o questionário que todo tutor precisa ter respondido para para poder adotar.
+**Descrição**: Cadastra o questionário que todo tutor precisa ter respondido para para poder adotar. Para cadastrar o questionário um usuário deve existir no sistema.
 
 **201 Created** – Questionário enviado:
 
@@ -185,7 +185,7 @@ Ordena por padrão do mais antigo para o mais recente.
 
 **POST /adocoes**
 
-**Descrição:** Cria um novo pedido de adoção. Um tutor pode ter múltiplos pedidos em análise. Os pedidos são organizados por ordem de chegada para cada pet. Ao deletar um pedido, a fila deve ser atualizada.
+**Descrição:** Cria um novo pedido de adoção. Um tutor pode ter múltiplos pedidos em análise. Os pedidos são organizados por ordem de chegada para cada pet. Ao deletar um pedido, a fila deve ser atualizada e para usuário solicitante é obrigatório ter o formulário preenchido.
 
 **201 Created** – Pedido criado com sucesso:
 
@@ -236,7 +236,7 @@ Ordena por padrão do mais antigo para o mais recente.
 
 **PATCH /tutores/:id**
 
-**Descrição:** Permite ao tutor atualizar seus dados e completar o questionário obrigatório.
+**Descrição:** Permite ao tutor atualizar seus dados e/ou completar o questionário obrigatório.
 
 **200 OK** – Dados atualizados com sucesso:
 
@@ -279,7 +279,7 @@ Ordena por padrão do mais antigo para o mais recente.
 
 **GET /admin/animais**
 
-**Descrição:** Permite ao administrador visualizar todos os animais com filtros avançados para permitir visualizar animais e seus pedidos de adoção. Este endpoint deve ser protegido por autenticação/autorização. Apenas administradores devem ter acesso a ele.
+**Descrição:** Permite ao administrador visualizar todos os animais com filtros avançados para permitir visualizar animais e seus pedidos de adoção. Este endpoint deve ser protegido por autorização. Apenas administradores devem ter acesso a ele.
 
 200 OK
 
@@ -318,7 +318,7 @@ Ordena por padrão do mais antigo para o mais recente.
 
 **PATCH /admin/animais/:id**
 
-**Descrição:** Atualiza status como castrado, vacinado, adotado, etc.
+**Descrição:** Atualiza status como castrado, vacinado, adotado, etc. Este endpoint deve ser protegido por autorização.
 
 200 OK
 
@@ -448,7 +448,7 @@ Ordena por padrão do mais antigo para o mais recente.
 
 **DELETE /admin/animais/:id**
 
-**Descrição:** Remove um animal da base de dados.
+**Descrição:** Remove um animal da base de dados. Este endpoint deve ser protegido por autorização.
 
 **204 No Content** – Animal removido com sucesso:
 
@@ -480,8 +480,7 @@ Ordena por padrão do mais antigo para o mais recente.
 
 GET/animais/:id
 
-**Descrição:**
-Este endpoint permite que um administrador consulte **os detalhes completos de um único animal** cadastrado no sistema de adoção, com base no seu id único.
+**Descrição:** Busca um animal por id cadastrado, retorna todas as informações do animal com lista de de pedidos ordenada por ordem de mais antigo para o mais recente. Este endpoint deve ser protegido por autorização.
 
 **Parâmetro de URL:**
 
@@ -501,7 +500,8 @@ id (UUID) — Identificador único do animal que será consultado.
 "vacinado": true,
 "adotado": false,
 "descricao": "string",
-"foto": "blob"
+"foto": "blob",
+"pedidos": ["id", "id" ,"id"]
 }
 ```
 
@@ -515,13 +515,11 @@ id (UUID) — Identificador único do animal que será consultado.
 }
 ```
 
-**Descrição:** Busca um animal por id cadastrado, retorna todas as informações do animal com lista de de pedidos ordenada por ordem de mais antigo para o mais recente.
-
 ## 11\. Login
 
 **Descrição:** Realisar a validação do email e senha registrados pelo usuário
 
-**POST /autenticação**
+**POST /autenticacao**
 
 ```
 {
@@ -558,7 +556,7 @@ id (UUID) — Identificador único do animal que será consultado.
 Body: {
 "nome": "Joana Silva",
 "email": "<joana@email.com>",
-"valor": 50,
+"valor": 100,
 "mensagem": "Obrigada pelo trabalho maravilhoso!"
 }
 ```
@@ -571,6 +569,7 @@ Body: {
 "nome": "Joana Silva",
 "valor": 50,
 "mensagem": "Obrigada pelo trabalho maravilhoso!",
+"linkPix":"00020126580014BR.GOV.BCB.PIX0136chavepix-ficticia@exemplo.com5204000053039865405100.005802BR5920Nome Exemplo Fictício6009Sao Paulo62070503***6304ABCD",
 "qrcode": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAA..." // QR Code gerado
 }
 ```
@@ -591,9 +590,14 @@ Body: {
 }
 ```
 
-## Observações:
+## **OBSERVAÇÕES IMPORTANTES**:
 
-   Criar uma "seed" para inserir os usuários administradores
+   * Todas as tebelas devem ter as colunas `createdAt` e `updatedAt`.
+   * Ao criar o Banco de Dados deve ser criada uma `seed` para inserir os usuários adminstradores no sistema.
+   * Deve ser utilizado criptografia para salvar as senhas no banco de dados, utilizando a lib:`https://www.npmjs.com/package/encryptjs`.
+   * A entrega deve ser feita até do final do dia 06/out(Turma de quarta-feira) e 08/out(Turma de segunda-feira), na entrega deve conter o link do repositório criado de maneira **publica**.
+   * Deve contem no readme da entrega; o nome dos integrates do grupo e a turma.
+   * O link deve ser enviado para os emails; tomas.verwiebe@venturus.org.br, ygor.pereira@venturus.org.br, alexsander.nascimento@venturus.org.br, maressa.ramalho@venturus.org.br, o assunto do email de ver ´Entrega do projeto Bento´, conteudo deve ter nome do grupo e integrantes e o link do repositório.
 
 ## Rotas da API
 
